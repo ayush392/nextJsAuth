@@ -49,6 +49,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
                 placeholder="test@gmail.com"
+                name="email"
               />
             </div>
             <div className=" mb-3">
@@ -60,6 +61,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 placeholder="Enter password"
+                name="password"
               />
             </div>
             <button
