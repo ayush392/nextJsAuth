@@ -10,11 +10,16 @@ function Register() {
     state: "",
     country: "",
     username: "",
+    otp: null,
   });
 
   const handleRegister = async (e: any) => {
     e.preventDefault();
     try {
+      const isValid = await verifyOTP(e);
+      if (!isValid) {
+        return alert("Invalid OTP");
+      }
       const res = await fetch("api/register", {
         method: "POST",
         headers: {
@@ -38,6 +43,60 @@ function Register() {
     }
   };
 
+  const generateOTP = async (e: any) => {
+    e.preventDefault();
+    console.log(data);
+    if (!data.email) return alert("Please enter email");
+    try {
+      const res = await fetch(
+        "https://otp-service-beta.vercel.app/api/otp/generate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: data.email,
+            type: "numeric",
+            organization: "nextJsAuth",
+            subject: "OTP Verification",
+          }),
+        }
+      );
+      const json = await res.json();
+      if (res.status === 200) return alert("OTP sent to your email");
+      alert(json.error);
+    } catch (error: any) {
+      // alert(error.message);
+      console.error(error.message);
+    }
+  };
+
+  const verifyOTP = async (e: any) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(
+        "https://otp-service-beta.vercel.app/api/otp/verify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: data.email,
+            otp: data.otp,
+          }),
+        }
+      );
+      const json = await res.json();
+      console.log(json);
+      if (json.error) return false;
+      return true;
+    } catch (error: any) {
+      console.error(error.message);
+    }
+  };
+
   const handleChange = (e: any) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
@@ -57,6 +116,7 @@ function Register() {
                 onChange={handleChange}
                 type="email"
                 placeholder="test@gmail.com"
+                name="email"
               />
             </div>
             <div className=" mb-3">
@@ -68,6 +128,7 @@ function Register() {
                 onChange={handleChange}
                 type="password"
                 placeholder="Enter password"
+                name="password"
               />
             </div>
             <div className=" mb-3">
@@ -78,7 +139,7 @@ function Register() {
                 className=" border p-1 block rounded w-[100%]"
                 onChange={handleChange}
                 type="text"
-                placeholder="name"
+                name="fullName"
               />
             </div>
             <div className=" mb-3">
@@ -90,29 +151,54 @@ function Register() {
                 onChange={handleChange}
                 type="text"
                 placeholder="username"
+                name="username"
               />
             </div>
-            <div className=" mb-3">
-              <label htmlFor="" className=" block">
-                State
-              </label>
-              <input
-                className=" border p-1 block rounded w-[100%]"
-                onChange={handleChange}
-                type="text"
-                placeholder="state"
-              />
+            <div className="flex gap-3">
+              <div className=" mb-3">
+                <label htmlFor="" className=" block">
+                  State
+                </label>
+                <input
+                  className=" border p-1 block rounded w-[100%]"
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="state"
+                  name="state"
+                />
+              </div>
+              <div className=" mb-3">
+                <label htmlFor="" className=" block">
+                  Country
+                </label>
+                <input
+                  className=" border p-1 block rounded w-[100%]"
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="country"
+                  name="country"
+                />
+              </div>
             </div>
+
             <div className=" mb-3">
-              <label htmlFor="" className=" block">
-                Country
+              <label htmlFor="otp" className=" block">
+                OTP
               </label>
-              <input
-                className=" border p-1 block rounded w-[100%]"
-                onChange={handleChange}
-                type="text"
-                placeholder="country"
-              />
+              <div className="flex">
+                <input
+                  className=" border p-1 block rounded w-[100%] me-3"
+                  onChange={handleChange}
+                  name="otp"
+                  type="text"
+                />
+                <button
+                  onClick={generateOTP}
+                  className=" text-white bg-blue-500 px-2 rounded min-w-fit"
+                >
+                  Get OTP
+                </button>
+              </div>
             </div>
 
             <button
