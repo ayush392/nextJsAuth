@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         message: "please fill all the fields",
         status: 400,
       });
-    name;
+
     const user = await userModel.findOne({ $or: [{ email }, { username }] });
     if (user) {
       return NextResponse.json({ message: "user already exists", status: 400 });
